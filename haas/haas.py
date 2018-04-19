@@ -10,9 +10,9 @@ if os.name == 'posix':
 		print('uvloop is not used', file=sys.stderr)
 	else:
 		asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-elif os.name == 'nt':
-	print('Using', asyncio.ProactorEventLoop.__doc__, file=sys.stderr)
-	# asyncio.set_event_loop(asyncio.ProactorEventLoop())
+# elif os.name == 'nt':
+# 	print('Using', asyncio.ProactorEventLoop.__doc__, file=sys.stderr)
+# 	asyncio.set_event_loop(asyncio.ProactorEventLoop())
 
 loop = asyncio.get_event_loop()
 registeredServices = {}
@@ -39,15 +39,10 @@ def checkServices():
 		loop.call_later(1.0, checkServices)
 
 def checkServicesImpl():
-	from .Service import Service
 	for className, serviceClass in registeredServices.items():
 		# print('registered service %s: %s' % (className, serviceClass), file=sys.stderr)
 		runningSet = runningServices[className]
 		if len(runningSet) < 1:
 			s = serviceClass()
 			runningSet.add( s )
-			loop.create_task(s.run())
-#
-#
-# async def runService(s):
-# 	await s.run()
+			s.start()

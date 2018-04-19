@@ -19,3 +19,4 @@ class WebService(haas.Service):
 	async def run(self):
 		app = make_app()
 		app.listen(25000)
+		print('Listening on localhost:25000 ...')
