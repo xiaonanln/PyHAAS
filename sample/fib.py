@@ -7,6 +7,6 @@ def fib(n):
     else:
         return fib(n-1) + fib(n-2)
 
-class FibService(haas.Service):
-    pass
-
+# class FibService(haas.Service):
+#     pass
+#

@@ -1,11 +1,13 @@
 # -*- coding: utf8 -*-
 
-class Service(object):
+import abc
 
-    def __init__(self):
-        pass
+class Service(abc.ABC):
+	"""Base class for services"""
 
+	def __init__(self):
+		pass
 
-
-
-
+	@abc.abstractmethod
+	async def run(self):
+		pass

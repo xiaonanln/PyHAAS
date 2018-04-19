@@ -1,24 +1,21 @@
 import tornado.ioloop
 import tornado.web
-from tornado import gen
 import haas
+from fib import fib
 
 class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        n = int(self.get_argument('n', '1'))
-        res = fib(n)
-        self.write(str(res))
-
+	async def get(self):
+		n = int(self.get_argument('n', '1'))
+		res = fib(n)
+		self.write(str(res))
 
 def make_app():
-    return tornado.web.Application([
-        (r"/", MainHandler),
-    ])
-
-def runwebservice():
-    app = make_app()
-    app.listen(25000)
-    tornado.ioloop.IOLoop.current().start()
+	return tornado.web.Application([
+		(r"/", MainHandler),
+	])
 
 class WebService(haas.Service):
-    pass
+
+	async def run(self):
+		app = make_app()
+		app.listen(25000)
