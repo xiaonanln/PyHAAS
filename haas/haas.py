@@ -3,6 +3,8 @@ import asyncio
 import os
 from . import asyncetcd
 from .errors import RegisterError
+from . import logging
+from . import globals
 
 if os.name == 'posix':
 	try:
@@ -11,18 +13,18 @@ if os.name == 'posix':
 		print('uvloop is not used', file=sys.stderr)
 	else:
 		asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
 # elif os.name == 'nt':
 # 	print('Using', asyncio.ProactorEventLoop.__doc__, file=sys.stderr)
 # 	asyncio.set_event_loop(asyncio.ProactorEventLoop())
 
-loop = asyncio.get_event_loop()
+globals.loop = loop = asyncio.get_event_loop()
 registeredServices = {}
 runningServices = {}
 
 def Run():
-	print('call checkServices later...')
 	loop.call_later(1.0, checkServices)
-	print('PyHAAS start running ...', file=sys.stderr)
+	logging.info('PyHAAS start running ...')
 	loop.run_forever()
 
 def Register(serviceClass):
@@ -36,7 +38,6 @@ def checkServices():
 	try:
 		checkServicesImpl()
 	finally:
-		print('call checkServices later...')
 		loop.call_later(1.0, checkServices)
 
 def checkServicesImpl():
@@ -44,6 +45,7 @@ def checkServicesImpl():
 		# print('registered service %s: %s' % (className, serviceClass), file=sys.stderr)
 		runningSet = runningServices[className]
 		if len(runningSet) < 1:
+			logging.info("Starting new service instance for %s ...", className)
 			s = serviceClass()
 			runningSet.add( s )
 			s.start()

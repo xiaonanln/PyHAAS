@@ -1,2 +1,2 @@
 
-from .asyncetcd import SetEtcdAddress
+from .asyncetcd import SetEtcdAddress, Set, Get

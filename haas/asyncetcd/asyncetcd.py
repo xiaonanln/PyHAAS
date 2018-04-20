@@ -4,32 +4,52 @@ import time
 import etcd
 import threading
 import queue
+import asyncio
+import traceback
+from .. import globals
 
 etcdManThread = None
+
+OP_GET = 1
+OP_SET = 2
 
 class EtcdManThread(threading.Thread):
 	def __init__(self, host, port):
 		threading.Thread.__init__(self)
 		self.host = host
 		self.port = port
-		self.client = None
+		self.client = etcd.Client(host=self.host, port=self.port)
 		self.requestQueue = queue.Queue()
 
 	def addRequest(self, req):
-		pass
+		self.requestQueue.put( req )
 
 	def run(self):
+		loop = globals.loop
 		while True:
-			self.assureConnected()
+			try:
+				self.loop_once(loop)
+			except Exception as ex:
+				traceback.print_exc()
+				time.sleep(1)
 
-			self.client.set('test_key', 'test_val')
-			print('test_key is set to', self.client.get('test_key').value)
-
-			time.sleep(1)
+	def loop_once(self, loop):
+		f, op, *args = self.requestQueue.get()
+		try:
+			if op == OP_GET:
+				res = self.client.get( args[0] )
+			elif op == OP_SET:
+				key, val = args
+				res = self.client.set(key, val)
+			else:
+				raise RuntimeError("unknown etcd operation: %s", op)
+		except:
+			loop.call_soon_threadsafe(f.cancel, )
+		else:
+			loop.call_soon_threadsafe(f.set_result, res)
 
 	def assureConnected(self):
 		if self.client is None:
-			self.client = etcd.Client(host=self.host, port=self.port)
 			print('connected etcd: %s ...' % self.client, file=sys.stderr)
 
 def SetEtcdAddress(host, port):
@@ -39,7 +59,13 @@ def SetEtcdAddress(host, port):
 	etcdManThread.start()
 
 async def Set( key, val ):
-	pass
+	f = asyncio.Future()
+	etcdManThread.addRequest( (f, OP_SET, key, val) )
+	res = await f
+	return res
 
 async def Get(key):
-	pass
+	f = asyncio.Future()
+	etcdManThread.addRequest( (f, OP_SET, key) )
+	res = await f
+	return res

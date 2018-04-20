@@ -2,6 +2,7 @@ import tornado.ioloop
 import tornado.web
 import haas
 from fib import fib
+from haas import logging
 
 class MainHandler(tornado.web.RequestHandler):
 	async def get(self):
@@ -19,4 +20,4 @@ class WebService(haas.Service):
 	async def run(self):
 		app = make_app()
 		app.listen(25000)
-		print('Listening on localhost:25000 ...')
+		logging.info('Listening on localhost:25000 ...')
