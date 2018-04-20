@@ -1,6 +1,7 @@
 import sys
 import asyncio
 import os
+from . import asyncetcd
 from .errors import RegisterError
 
 if os.name == 'posix':
@@ -46,3 +47,6 @@ def checkServicesImpl():
 			s = serviceClass()
 			runningSet.add( s )
 			s.start()
+
+def SetEtcdAddress(host, port):
+	asyncetcd.SetEtcdAddress(host, port)

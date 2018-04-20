@@ -1,11 +1,7 @@
-
-import psutil
-
 def hello():
     print('hello', 'haas')
 
-from .haas import Register, Run
+from .haas import Register, Run, SetEtcdAddress
 from .Service import Service
-from .etcdman import SetEtcdAddress
 
 __all__ = ['Service', 'Register', 'Run', 'SetEtcdAddress']
