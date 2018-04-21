@@ -43,8 +43,8 @@ class EtcdManThread(threading.Thread):
 				res = self.client.set(key, val)
 			else:
 				raise RuntimeError("unknown etcd operation: %s", op)
-		except:
-			loop.call_soon_threadsafe(f.cancel, )
+		except Exception as ex:
+			loop.call_soon_threadsafe(f.set_exception, ex)
 		else:
 			loop.call_soon_threadsafe(f.set_result, res)
 
@@ -66,6 +66,6 @@ async def Set( key, val ):
 
 async def Get(key):
 	f = asyncio.Future()
-	etcdManThread.addRequest( (f, OP_SET, key) )
+	etcdManThread.addRequest( (f, OP_GET, key) )
 	res = await f
 	return res
